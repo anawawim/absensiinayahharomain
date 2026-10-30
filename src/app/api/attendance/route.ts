@@ -4,9 +4,9 @@ import { appendAttendance } from '@/lib/googleSheets';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name } = body;
+    const { name, minggu } = body;
 
-    console.log('Menerima request absen untuk raw data:', name);
+    console.log('Menerima request absen untuk raw data:', name, 'Minggu:', minggu);
 
     if (!name) {
       return NextResponse.json(
@@ -29,13 +29,18 @@ export async function POST(request: Request) {
       if (parts.length >= 2) namaJamaah = parts[1].trim();
       if (parts.length >= 3) kecamatan = parts[2].trim();
       if (parts.length >= 4) kabKota = parts[3].trim();
+    } else if (/^\d+$/.test(name.trim())) {
+      // Jika input manual berupa Nomor Porsi (angka saja)
+      porsi = name.trim();
+      namaJamaah = name.trim();
     }
 
     const result = await appendAttendance({
       porsi,
       nama: namaJamaah,
       kecamatan,
-      kabKota
+      kabKota,
+      minggu: minggu || 1
     });
     console.log('Berhasil mencatat absen:', result);
 
